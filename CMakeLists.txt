@@ -4,12 +4,12 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # Library name
-set(LIBRARY_NAME Logger)
+set(LOGGER_LIBRARY_NAME Logger)
 
 # Check if project is self-hosted
 if (NOT DEFINED PROJECT_NAME)
     project(
-        ${LIBRARY_NAME}
+        ${LOGGER_LIBRARY_NAME}
         VERSION 1.0.0
         LANGUAGES C CXX
     )
@@ -29,23 +29,23 @@ set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 
 # Library target
-add_library(${LIBRARY_NAME} SHARED)
-target_link_libraries(${LIBRARY_NAME} PRIVATE ${TARGET_LINKED_LIBS} )
+add_library(${LOGGER_LIBRARY_NAME} SHARED)
+target_link_libraries(${LOGGER_LIBRARY_NAME} PRIVATE ${TARGET_LINKED_LIBS} )
 
 # Files
 file(GLOB_RECURSE HEADERS "src/*.hpp" "src/*.h")
 file(GLOB_RECURSE SOURCES "src/*.cpp")
-target_sources(${LIBRARY_NAME} PRIVATE ${HEADERS} ${SOURCES} ${UIFILES})
+target_sources(${LOGGER_LIBRARY_NAME} PRIVATE ${HEADERS} ${SOURCES} ${UIFILES})
 
 # Suffixes
 if(CMAKE_BUILD_TYPE STREQUAL "Debug")
-    target_compile_definitions(${TARGET_NAME} PRIVATE DEBUG_MODE)
-    target_compile_options(${TARGET_NAME} PRIVATE -g)
-    set_target_properties(${TARGET_NAME} PROPERTIES SUFFIX ".so.DEBUG")
+    target_compile_definitions(${LOGGER_LIBRARY_NAME} PRIVATE DEBUG_MODE)
+    target_compile_options(${LOGGER_LIBRARY_NAME} PRIVATE -g)
+    set_target_properties(${LOGGER_LIBRARY_NAME} PROPERTIES SUFFIX ".so.DEBUG")
 elseif(CMAKE_BUILD_TYPE STREQUAL "Release")
-    target_compile_definitions(${TARGET_NAME} PRIVATE NDEBUG)
-    target_compile_options(${TARGET_NAME} PRIVATE -O3)
-    set_target_properties(${TARGET_NAME} PROPERTIES SUFFIX ".so")
+    target_compile_definitions(${LOGGER_LIBRARY_NAME} PRIVATE NDEBUG)
+    target_compile_options(${LOGGER_LIBRARY_NAME} PRIVATE -O3)
+    set_target_properties(${LOGGER_LIBRARY_NAME} PROPERTIES SUFFIX ".so")
 endif()
 
 # Includes
@@ -53,8 +53,8 @@ if(NOT EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/src")
     message(FATAL_ERROR "Error configuring library! Not found sources dir: " "${CMAKE_CURRENT_SOURCE_DIR}/src")
 endif()
 
-target_include_directories(${LIBRARY_NAME} PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/src")
-message(STATUS "Configured library: " ${LIBRARY_NAME})
+target_include_directories(${LOGGER_LIBRARY_NAME} PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/src")
+message(STATUS "Configured library: " ${LOGGER_LIBRARY_NAME})
 
 
 function(LINK_LOGGER_LIBRARY TARGET_NAME)
@@ -64,17 +64,17 @@ function(LINK_LOGGER_LIBRARY TARGET_NAME)
     )
 
     if(NOT EXISTS ${LTL_LIBRARY_INCLUDE_DIR})
-        message(FATAL_ERROR "Error searching for ${LIBRARY_NAME} (not exist)")
+        message(FATAL_ERROR "Error searching for ${LOGGER_LIBRARY_NAME} (not exist)")
     endif()
 
     target_link_libraries(
         ${TARGET_NAME} PRIVATE
-        ${LIBRARY_NAME}
+        ${LOGGER_LIBRARY_NAME}
     )
 
     target_include_directories(
         ${TARGET_NAME} PUBLIC
         ${LTL_LIBRARY_INCLUDE_DIR}
     )
-    message(STATUS "Linking target " ${TARGET_NAME} " : added lib " ${LIBRARY_NAME})
+    message(STATUS "Linking target " ${TARGET_NAME} " : added lib " ${LOGGER_LIBRARY_NAME})
 endfunction()
