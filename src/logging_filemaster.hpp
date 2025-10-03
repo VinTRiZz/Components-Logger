@@ -13,7 +13,7 @@
 #include <boost/fusion/include/make_tuple.hpp>
 #endif  // C++ 17
 
-#ifdef QT_CORE
+#ifdef QT_CORE_LIB
 #include <QCoreApplication>
 #include <QDebug>
 #include <QDir>
@@ -21,7 +21,7 @@
 #include <QPoint>
 #else
 #include <fstream>
-#endif // QT_CORE
+#endif // QT_CORE_LIB
 
 #include "logging_common.hpp"
 
@@ -31,13 +31,13 @@ namespace Logging
 
 class LoggingFileMaster
 {
-#ifdef QT_CORE
+#ifdef QT_CORE_LIB
     QFile logfile;                        //! Логфайл
     QTextStream logfileStream{&logfile};  //! Поток ввода в файл данных
 #else
     std::string logfilePath;    //! Путь до логфайла
     std::fstream logfile;       //! Логфайл
-#endif // QT_CORE
+#endif // QT_CORE_LIB
 
     std::mutex logfileMx;  //! Мьютекс для единоличной записи данных в файл
 
@@ -66,19 +66,13 @@ class LoggingFileMaster
    void taskAdded();
 
    template <typename T>
-   void logger(T v) {
-       logfile << v << " ";
+   void writeToFile(const T& v) {
+       logfileStream << v << " ";
    }
 
 public:
    LoggingFileMaster(const std::string& filePath);
    ~LoggingFileMaster();
-
-#ifdef QT_CORE
-   static QString getCurrentLogfile();
-#else
-   static std::string geCurrentLogfile();
-#endif // QT_CORE
 
    /**
     * @brief log Вывести данные в потоке логгирования. Для синхронного вывода
@@ -92,7 +86,7 @@ public:
        auto task = [=]() {
            logfileMx.lock();
 
-#ifdef QT_CORE
+#ifdef QT_CORE_LIB
            logfile.open(QIODevice::Append);
            if (!logfile.isOpen()) {
                throw std::runtime_error(
@@ -106,17 +100,12 @@ public:
                     std::string("Error opening logfile (logfile path: ") +
                     logfilePath + ")");
             }
-#endif // QT_CORE
+#endif // QT_CORE_LIB
+           (writeToFile(args), ...);
 
-#if __cplusplus < 201701UL
-           boost::fusion::for_each(boost::fusion::make_tuple(args...), logger);
-#else
-           (logger(args), ...);
-#endif  // C++ 17
-
-#ifdef QT_CORE
+#ifdef QT_CORE_LIB
            logfileStream << Qt::endl;
-#endif // QT_CORE
+#endif // QT_CORE_LIB
 
            logfile.flush();
            logfile.close();
@@ -135,84 +124,9 @@ public:
    }
 };
 
-
-#ifdef QT_CORE // TODO: Write-up
-// ==============================================================================
-// //
-// ==============================================================================
-// //
-// =================================== FOR QT TYPES
-// ============================= //
-// ==============================================================================
-// //
-// ==============================================================================
-// //
-
-template<>
-inline void LoggingMaster::LoggingHelper::ostreamWriteOnly(std::string val) {
-    m_dbgStream << val.c_str();
+template <>
+inline void LoggingFileMaster::writeToFile(const std::string& v) {
+    logfileStream << v.c_str() << " ";
 }
-
-template<>
-inline void LoggingMaster::LoggingHelper::ostreamWriteOnly(QString val) {
-    m_dbgStream << val.toUtf8().data();
-}
-
-template<>
-inline void LoggingMaster::LoggingHelper::ostreamWriteOnly(QPoint val) {
-    m_dbgStream << val;
-}
-
-template<>
-inline void LoggingMaster::LoggingHelper::ostreamWriteOnly(QPointF val) {
-    m_dbgStream << val;
-}
-
-template<>
-inline void LoggingMaster::LoggingHelper::fileWriteOnly(std::string val) {
-    LoggingMaster::getInstance().logfileStream << val.c_str() << " ";
-}
-
-template<>
-inline void LoggingMaster::LoggingHelper::fileWriteOnly(const char* val) {
-    LoggingMaster::getInstance().logfileStream << QByteArray(val) << " ";
-}
-
-template<>
-inline void LoggingMaster::LoggingHelper::fileWriteOnly(QString val) {
-    LoggingMaster::getInstance().logfileStream << val.toUtf8().data() << " ";
-}
-
-template<>
-inline void LoggingMaster::LoggingHelper::fileWriteOnly(QPoint val) {
-    LoggingMaster::getInstance().logfileStream
-        << "{P " << QString::number(val.x()).toUtf8().data() << "; "
-        << QString::number(val.y()).toUtf8().data() << "} ";
-}
-
-template<>
-inline void LoggingMaster::LoggingHelper::fileWriteOnly(QPointF val) {
-    LoggingMaster::getInstance().logfileStream
-        << "{P " << QString::number(val.x()).replace(",", ".").toUtf8().data()
-        << "; " << QString::number(val.y()).replace(",", ".").toUtf8().data()
-        << "} ";
-}
-
-template<>
-inline void LoggingMaster::LoggingHelper::fileWriteOnly(double val) {
-    // Принудительная замена с игнором локали
-    auto resv = QString::number(val);
-    resv = resv.replace(",", ".");
-
-    LoggingMaster::getInstance().logfileStream << resv.toUtf8().data() << " ";
-}
-
-template<>
-inline void LoggingMaster::LoggingHelper::fileWriteOnly(QVariant val) {
-    LoggingMaster::getInstance().logfileStream << val.toString().toUtf8().data()
-                                               << " ";
-}
-#endif // QT_CORE
-
 
 }

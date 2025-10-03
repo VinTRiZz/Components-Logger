@@ -13,16 +13,15 @@
 #include <boost/fusion/include/make_tuple.hpp>
 #endif  // C++ 17
 
-#ifdef QT_CORE
+#ifdef QT_CORE_LIB
 #include <QCoreApplication>
 #include <QDebug>
 #include <QDir>
-#include <QFile>
 #include <QPoint>
 #else
 #include <fstream>
 #include <iostream>
-#endif // QT_CORE
+#endif // QT_CORE_LIB
 
 #include "logging_common.hpp"
 #include "logging_filemaster.hpp"
@@ -47,30 +46,6 @@ class LoggingMaster : public boost::noncopyable {
     std::mutex addTaskMx;  //! Мьютекс для ожидания добавления данных на вывод в
                            //! поток логов
 
-    /**
-     * @brief The LoggingHelper class Помощник вывода данных в логфайл
-     */
-    class LoggingHelper {
-#ifdef QT_CORE
-        QDebug m_dbgStream{qDebug()};  //! Поток вывода (для Qt)
-#endif // QT_CORE
-    public:
-
-        /**
-         * @brief operator () Оператор для вывода данных в терминал и записи в
-         * файл
-         * @param val данные
-         */
-        template<typename T>
-        void operator()(T&& val) {
-#ifdef QT_CORE
-            m_dbgStream << val;
-#else
-            std::cout << val;
-#endif // QT_CORE
-        }
-    };
-
     LoggingFileMaster logfileMaster;
 
     /**
@@ -87,12 +62,14 @@ class LoggingMaster : public boost::noncopyable {
     ~LoggingMaster();
 
     template <typename T>
-    void printLog(const T& v) {
-#ifdef QT_CORE
-        m_dbgStream << v;
+    void printLog(const T& v
+#ifdef QT_CORE_LIB
+    , QDebug& dbgStream) {
+        dbgStream << v;
 #else
+                  ) {
         std::cout << v << " ";
-#endif // QT_CORE
+#endif // QT_CORE_LIB
     }
 
 public:
@@ -110,26 +87,25 @@ public:
         auto timestamp = getCurrentTimestampFormatted();
 
         auto task = [=]() {
-#ifdef QT_CORE
-            m_dbgStream = qDebug();
-#endif // QT_CORE
-
+#ifdef QT_CORE_LIB
+            auto dbgStream = qDebug();
+            printLog(timestamp + " [" + logTypeStringColored<lt>() + "] ", dbgStream);
+            (printLog(args, dbgStream), ...);
+#else
             printLog(timestamp + " [" +
                                     logTypeStringColored<lt>() + "] ");
+            (printLog(args), ...);
+#endif // QT_CORE_LIB
+
+
             logfileMaster.log<lt, isSync>(timestamp + " [" +
                                           logTypeString<lt>() + "] ");
-
-#if __cplusplus < 201701UL
-            boost::fusion::for_each(boost::fusion::make_tuple(args...), printLog);
-#else
-            (printLog(args), ...);
             (logfileMaster.log<lt, isSync>(args), ...);
             logfileMaster.log<lt, isSync>("\n");
-#endif  // C++ 17
 
-#ifndef QT_CORE
+#ifndef QT_CORE_LIB
             std::cout << std::endl;
-#endif // QT_CORE
+#endif // QT_CORE_LIB
 
         };
 
@@ -144,6 +120,13 @@ public:
         taskAdded();
     }
 };
+
+#ifdef QT_CORE_LIB
+template <>
+inline void LoggingMaster::printLog(const std::string& v, QDebug& dbgStream) {
+    dbgStream << v.c_str();
+}
+#endif // QT_CORE_LIB
 
 }  // namespace Logging
 
