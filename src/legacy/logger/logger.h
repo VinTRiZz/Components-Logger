@@ -5,7 +5,7 @@
 #include <QString>
 #include <sys/signal.h>
 
-namespace Logging
+namespace LoggingOld
 {
 
 namespace Defines
@@ -44,7 +44,7 @@ private:
     std::unique_ptr<LoggerPrivate> d;
 };
 
-static Logger &staticLogger = Logger::instance();
+//static Logger &staticLogger = Logger::instance();
 
 void logFunction(QtMsgType logLevel, const QMessageLogContext &ctx, const QString& msg);
 void signalHandler(int _signo);

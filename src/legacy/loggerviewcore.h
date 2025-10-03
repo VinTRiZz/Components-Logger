@@ -8,7 +8,7 @@
 
 #include <functional>
 
-namespace Logging
+namespace LoggingOld
 {
 
 enum LogType

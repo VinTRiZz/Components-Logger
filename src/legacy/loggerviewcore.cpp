@@ -15,7 +15,7 @@
         qDebug() << what; \
 }
 
-namespace Logging
+namespace LoggingOld
 {
 
 // Storage for every launch log messages

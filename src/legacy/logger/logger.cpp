@@ -20,12 +20,12 @@
 
 #include "coutbuffer.h"
 
-namespace Logging
+namespace LoggingOld
 {
 
 struct Logger::LoggerPrivate
 {
-    QString m_logFileName {Logging::Defines::LOG_FILE_PATH};
+    QString m_logFileName {Defines::LOG_FILE_PATH};
 
     QFile m_logfile;
     QTextStream m_logstream;
@@ -83,7 +83,7 @@ void Logger::setup()
 
     d->m_logstream.setDevice(&d->m_logfile);
     d->m_logstream << Defines::LOG_DELIMETER;
-    d->m_logstream << "----------------------- Launch time: " << timestamp << endl;
+    d->m_logstream << "----------------------- Launch time: " << timestamp << Qt::endl;
     d->m_logstream << Defines::LOG_DELIMETER;
 
     // Setup std::cout
@@ -146,13 +146,13 @@ void Logger::log(QtMsgType logLevel, const QMessageLogContext &ctx, const QStrin
     }
 
     auto outputString = timestamp + logLevelString + contextString + msg;
-    d->m_logstream << outputString << endl;
-    qDebug() << outputString.toUtf8().data() << endl;
+    d->m_logstream << outputString << Qt::endl;
+    qDebug() << outputString.toUtf8().data() << Qt::endl;
 }
 
 void logFunction(QtMsgType logLevel, const QMessageLogContext &ctx, const QString &msg)
 {
-    staticLogger.log(logLevel, ctx, msg);
+//    staticLogger.log(logLevel, ctx, msg);
 }
 
 void signalHandler(int _signo)
@@ -162,7 +162,7 @@ void signalHandler(int _signo)
         const size_t backtraceSize = 100;
         void* tempArray[backtraceSize];
         qDebug() << "SEGMENTATION FAULT";
-        backtrace_symbols_fd(tempArray, backtraceSize, staticLogger.logfile_fd());
+//        backtrace_symbols_fd(tempArray, backtraceSize, staticLogger.logfile_fd());
         exit(-1);
     }
 }

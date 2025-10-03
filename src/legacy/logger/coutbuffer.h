@@ -6,7 +6,7 @@
 
 #include <QFile>
 
-namespace Logging {
+namespace LoggingOld {
 
 class CoutBuffer : public std::basic_filebuf<char>
 {
