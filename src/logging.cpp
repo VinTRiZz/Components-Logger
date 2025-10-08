@@ -13,8 +13,11 @@ void LoggingMaster::taskAdded() {
 }
 
 
-LoggingMaster::LoggingMaster() :
-    logfileMaster{"app.log"} {
+#ifdef _WIN32
+#error "Invalid path (see delimeter)"
+#endif // _WIN32
+LoggingMaster::LoggingMaster(const std::string &logfilePath) :
+    logfileMaster{logfilePath + "/" + getLogfilename()} {
 
     isWorking = true;
     logThread = std::thread([this]() {
@@ -52,8 +55,8 @@ LoggingFileMaster &LoggingMaster::getLogfileMaster()
     return logfileMaster;
 }
 
-LoggingMaster& LoggingMaster::getInstance() {
-    static LoggingMaster inst;
+LoggingMaster& LoggingMaster::getInstance(const std::string& logfileDir) {
+    static LoggingMaster inst(logfileDir);
     return inst;
 }
 

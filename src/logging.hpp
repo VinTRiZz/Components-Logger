@@ -58,7 +58,7 @@ class LoggingMaster : public boost::noncopyable {
      */
     void taskAdded();
 
-    LoggingMaster();
+    LoggingMaster(const std::string& logfilePath);
     ~LoggingMaster();
 
     template <typename T>
@@ -75,7 +75,7 @@ class LoggingMaster : public boost::noncopyable {
 public:
     LoggingFileMaster& getLogfileMaster();
 
-    static LoggingMaster& getInstance();
+    static LoggingMaster& getInstance(const std::string &logfileDir = ".");
 
     /**
      * @brief log Вывести данные в потоке логгирования. Для синхронного вывода
