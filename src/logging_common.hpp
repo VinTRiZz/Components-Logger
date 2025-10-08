@@ -70,7 +70,7 @@ constexpr const char* logTypeString() {
 static std::string getLogfilename() {
 #ifdef QT_CORE
     return QDateTime::currentDateTime()
-        .toString("yyyy-MM-dd_hh-mm-ss")
+        .toString("yyyy-MM-dd_hh-mm-ss.log")
         .toStdString();
 #else
     auto now = std::chrono::system_clock::now();
@@ -88,9 +88,7 @@ static std::string getLogfilename() {
 #endif
 
     std::ostringstream oss;
-    oss << std::put_time(&now_tm, "%Y-%m-%d_%H-%M-%S")
-        << '.' << std::setfill('0') << std::setw(3)
-        << (now_ms.time_since_epoch().count() % 1000);
+    oss << std::put_time(&now_tm, "%Y-%m-%d_%H-%M-%S.log");
 
     return oss.str();
 #endif // QT_CORE
