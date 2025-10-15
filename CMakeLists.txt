@@ -3,10 +3,6 @@ cmake_minimum_required(VERSION 3.7)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-if (TARGET Logger)
-    return()
-endif()
-
 # Library name
 set(LIBRARY_NAME Logger)
 
