@@ -43,7 +43,6 @@ function(LINK_COMPONENT TARGET_NAME COMPONENT_ROOT_DIR COMPONENT_NAME)
         message(FATAL_ERROR "Error searching for component: ${COMPONENT_NAME} (not exist)")
     endif()
 
-    add_subdirectory(${COMPONENT_ROOT_DIR}/Components-${COMPONENT_NAME})
     LINK_LIBRARY(${COMPONENT_ROOT_DIR}/Components-${COMPONENT_NAME}/include ${TARGET_NAME} ${COMPONENT_NAME})
 endfunction()
 
