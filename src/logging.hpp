@@ -89,11 +89,15 @@ public:
         auto task = [=]() {
 #ifdef QT_CORE_LIB
             auto dbgStream = qDebug();
-            printLog(timestamp + " [" + logTypeStringColored<lt>() + "] ", dbgStream);
+            if constexpr (lt != LoggingType::Empty) {
+                printLog(timestamp + " [" + logTypeStringColored<lt>() + "] ", dbgStream);
+            }
             (printLog(args, dbgStream), ...);
 #else
-            printLog(timestamp + " [" +
-                                    logTypeStringColored<lt>() + "] ");
+            if constexpr (lt != LoggingType::Empty) {
+                printLog(timestamp + " [" +
+                                        logTypeStringColored<lt>() + "] ");
+            }
             (printLog(args), ...);
 #endif // QT_CORE_LIB
 
