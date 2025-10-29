@@ -101,11 +101,11 @@ public:
             (printLog(args), ...);
 #endif // QT_CORE_LIB
 
-
-            logfileMaster.log<lt, isSync>(timestamp + " [" +
-                                          logTypeString<lt>() + "] ");
-            (logfileMaster.log<lt, isSync>(args), ...);
-            logfileMaster.log<lt, isSync>("\n");
+            if constexpr (lt != LoggingType::Empty) {
+                logfileMaster.log<lt, isSync>(timestamp + " [" + logTypeString<lt>() + "] ", args...);
+            } else {
+                logfileMaster.log<lt, isSync>(args...);
+            }
 
 #ifndef QT_CORE_LIB
             std::cout << std::endl;
