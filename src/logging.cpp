@@ -1,5 +1,7 @@
 #include "logging.hpp"
 
+#include <filesystem>
+
 namespace Logging {
 
 void LoggingMaster::waitForTasks() {
@@ -13,11 +15,8 @@ void LoggingMaster::taskAdded() {
 }
 
 
-#ifdef _WIN32
-#error "Invalid path (see delimeter)"
-#endif // _WIN32
 LoggingMaster::LoggingMaster(const std::string &logfilePath) :
-    logfileMaster{logfilePath + "/" + getLogfilename()} {
+    logfileMaster{logfilePath + std::filesystem::path::preferred_separator + getLogfilename()} {
 
     isWorking = true;
     logThread = std::thread([this]() {
