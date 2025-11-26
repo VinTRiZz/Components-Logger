@@ -129,4 +129,16 @@ inline void LoggingFileMaster::writeToFile(const std::string& v) {
     logfileStream << v.c_str() << " ";
 }
 
+#ifdef QT_CORE_LIB
+template <>
+inline void LoggingFileMaster::writeToFile(const QPoint& v) {
+    logfileStream << "{" << v.x() << "; " << v.y() << "} ";
+}
+
+template <>
+inline void LoggingFileMaster::writeToFile(const QPointF& v) {
+    logfileStream << "{" << v.x() << "; " << v.y() << "} ";
+}
+#endif // QT_CORE_LIB
+
 }
