@@ -65,10 +65,17 @@ class LoggingFileMaster
     */
    void taskAdded();
 
+#ifdef QT_CORE_LIB
    template <typename T>
    void writeToFile(const T& v) {
        logfileStream << v << " ";
    }
+#else
+   template <typename T>
+   void writeToFile(const T& v) {
+       std::cout << v << " ";
+   }
+#endif // QT_CORE_LIB
 
 public:
    LoggingFileMaster(const std::string& filePath);
@@ -124,12 +131,12 @@ public:
    }
 };
 
+#ifdef QT_CORE_LIB
 template <>
 inline void LoggingFileMaster::writeToFile(const std::string& v) {
     logfileStream << v.c_str() << " ";
 }
 
-#ifdef QT_CORE_LIB
 template <>
 inline void LoggingFileMaster::writeToFile(const QPoint& v) {
     logfileStream << "{" << v.x() << "; " << v.y() << "} ";
