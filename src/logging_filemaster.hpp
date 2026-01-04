@@ -73,7 +73,12 @@ class LoggingFileMaster
 #else
    template <typename T>
    void writeToFile(const T& v) {
-       std::cout << v << " ";
+       logfile << v << " ";
+   }
+
+   // Особенность STL версии
+   void addEndline() {
+       logfile << std::endl;
    }
 #endif // QT_CORE_LIB
 
@@ -109,6 +114,7 @@ public:
             }
 #endif // QT_CORE_LIB
            (writeToFile(args), ...);
+            addEndline();
 
 #ifdef QT_CORE_LIB
            logfileStream << Qt::endl;
