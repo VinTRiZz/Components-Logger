@@ -7,6 +7,7 @@
 #include <thread>
 
 #include <boost/noncopyable.hpp>
+#include <boost/core/demangle.hpp>
 
 #if __cplusplus < 201701UL
 #include <boost/fusion/include/for_each.hpp>
@@ -125,6 +126,13 @@ public:
     }
 };
 
+#ifndef QT_CORE_LIB
+template <>
+inline void LoggingMaster::printLog(const bool& v) {
+    std::cout << (v ? "true" : "false") << " ";
+}
+#endif // NOT QT_CORE_LIB
+
 #ifdef QT_CORE_LIB
 template <>
 inline void LoggingMaster::printLog(const std::string& v, QDebug& dbgStream) {
@@ -135,6 +143,9 @@ inline void LoggingMaster::printLog(const std::string& v, QDebug& dbgStream) {
 }  // namespace Logging
 
 // Параллельный логгер (макросы вывода данных через другой поток)
+#define LOG_TYPENAME(LOGGING_LOGITEM)                                          \
+    Logging::LoggingMaster::getInstance()                                      \
+        .log<Logging::LoggingType::Debug, false>("Type of object: [", #LOGGING_LOGITEM, "] is: [", boost::core::demangle(typeid(LOGGING_LOGITEM).name()), "]")
 #define LOG_EMPTY(...)                                                         \
     Logging::LoggingMaster::getInstance()                                      \
         .log<Logging::LoggingType::Empty, false>(__VA_ARGS__)
@@ -155,6 +166,9 @@ inline void LoggingMaster::printLog(const std::string& v, QDebug& dbgStream) {
         .log<Logging::LoggingType::Ok, false>(__VA_ARGS__)
 
 // Синхронная версия логгера (макросы вывода данных через текущий поток)
+#define LOG_TYPENAME_SYNC(LOGGING_LOGITEM)                                     \
+    Logging::LoggingMaster::getInstance()                                      \
+        .log<Logging::LoggingType::Debug, true>("Type of object: [", #LOGGING_LOGITEM, "] is: [", boost::core::demangle(typeid(LOGGING_LOGITEM).name()), "]")
 #define LOG_EMPTY_SYNC(...)                                                    \
     Logging::LoggingMaster::getInstance()                                      \
         .log<Logging::LoggingType::Empty, true>(__VA_ARGS__)
