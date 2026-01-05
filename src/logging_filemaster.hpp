@@ -39,6 +39,8 @@ class LoggingFileMaster
     std::fstream logfile;       //! Логфайл
 #endif // QT_CORE_LIB
 
+    std::mutex logfileWriteMx;
+
 #ifdef QT_CORE_LIB
    template <typename T>
    void writeToFile(const T& v) {
@@ -73,6 +75,7 @@ public:
    template<LoggingType lt, bool isSync, typename... Args>
    void log(Args... args) {
        auto timestamp = getCurrentTimestampFormatted();
+       logfileWriteMx.lock();
 
 #ifdef QT_CORE_LIB
        logfile.open(QIODevice::Append);
@@ -94,6 +97,7 @@ public:
 
        logfile.flush();
        logfile.close();
+       logfileWriteMx.unlock();
    }
 };
 
