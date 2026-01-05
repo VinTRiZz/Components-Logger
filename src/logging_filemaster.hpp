@@ -13,7 +13,7 @@
 #include <boost/fusion/include/make_tuple.hpp>
 #endif  // C++ 17
 
-#ifdef QT_CORE_LIB
+#ifdef LOGGER_USE_QT
 #include <QCoreApplication>
 #include <QDebug>
 #include <QDir>
@@ -21,7 +21,7 @@
 #include <QPoint>
 #else
 #include <fstream>
-#endif // QT_CORE_LIB
+#endif // LOGGER_USE_QT
 
 #include "logging_common.hpp"
 
@@ -31,17 +31,15 @@ namespace Logging
 
 class LoggingFileMaster
 {
-#ifdef QT_CORE_LIB
+#ifdef LOGGER_USE_QT
     QFile logfile;                        //! Логфайл
     QTextStream logfileStream{&logfile};  //! Поток ввода в файл данных
 #else
     std::string logfilePath;    //! Путь до логфайла
     std::fstream logfile;       //! Логфайл
-#endif // QT_CORE_LIB
+#endif // LOGGER_USE_QT
 
-    std::mutex logfileWriteMx;
-
-#ifdef QT_CORE_LIB
+#ifdef LOGGER_USE_QT
    template <typename T>
    void writeToFile(const T& v) {
        logfileStream << v << " ";
@@ -52,15 +50,15 @@ class LoggingFileMaster
        logfile << v << " ";
    }
 
-#endif // QT_CORE_LIB
+#endif // LOGGER_USE_QT
 
 
    void addEndline() {
-#ifdef QT_CORE_LIB
+#ifdef LOGGER_USE_QT
        logfileStream << Qt::endl;
 #else
        logfile << std::endl;
-#endif // QT_CORE_LIB
+#endif // LOGGER_USE_QT
    }
 
 public:
@@ -74,10 +72,7 @@ public:
     */
    template<LoggingType lt, bool isSync, typename... Args>
    void log(Args... args) {
-       auto timestamp = getCurrentTimestampFormatted();
-       logfileWriteMx.lock();
-
-#ifdef QT_CORE_LIB
+#ifdef LOGGER_USE_QT
        logfile.open(QIODevice::Append);
        if (!logfile.isOpen()) {
            throw std::runtime_error(
@@ -91,17 +86,16 @@ public:
                 std::string("Error opening logfile (logfile path: ") +
                 logfilePath + ")");
         }
-#endif // QT_CORE_LIB
+#endif // LOGGER_USE_QT
        (writeToFile(args), ...);
         addEndline();
 
        logfile.flush();
        logfile.close();
-       logfileWriteMx.unlock();
    }
 };
 
-#ifdef QT_CORE_LIB
+#ifdef LOGGER_USE_QT
 template <>
 inline void LoggingFileMaster::writeToFile(const std::string& v) {
     logfileStream << v.c_str() << " ";
@@ -116,6 +110,6 @@ template <>
 inline void LoggingFileMaster::writeToFile(const QPointF& v) {
     logfileStream << "{" << v.x() << "; " << v.y() << "} ";
 }
-#endif // QT_CORE_LIB
+#endif // LOGGER_USE_QT
 
 }

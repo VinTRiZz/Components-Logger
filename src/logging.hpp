@@ -14,7 +14,7 @@
 #include <boost/fusion/include/make_tuple.hpp>
 #endif  // C++ 17
 
-#ifdef QT_CORE_LIB
+#ifdef LOGGER_USE_QT
 #include <QCoreApplication>
 #include <QDebug>
 #include <QDir>
@@ -22,7 +22,7 @@
 #else
 #include <fstream>
 #include <iostream>
-#endif // QT_CORE_LIB
+#endif // LOGGER_USE_QT
 
 #include "logging_common.hpp"
 #include "logging_filemaster.hpp"
@@ -47,6 +47,7 @@ class LoggingMaster : public boost::noncopyable {
     std::mutex addTaskMx;  //! Мьютекс для ожидания добавления данных на вывод в
                            //! поток логов
 
+    std::mutex logfileWriteMx; //! Мьютекс для записи в логфайл
     LoggingFileMaster logfileMaster;
 
     /**
@@ -64,13 +65,13 @@ class LoggingMaster : public boost::noncopyable {
 
     template <typename T>
     void printLog(const T& v
-#ifdef QT_CORE_LIB
+#ifdef LOGGER_USE_QT
     , QDebug& dbgStream) {
         dbgStream << v;
 #else
                   ) {
         std::cout << v << " ";
-#endif // QT_CORE_LIB
+#endif // LOGGER_USE_QT
     }
 
 public:
@@ -88,7 +89,7 @@ public:
         auto timestamp = getCurrentTimestampFormatted();
 
         auto task = [=]() {
-#ifdef QT_CORE_LIB
+#ifdef LOGGER_USE_QT
             auto dbgStream = qDebug();
             if constexpr (lt != LoggingType::Empty) {
                 printLog(timestamp + " [" + logTypeStringColored<lt>() + "] ", dbgStream);
@@ -100,17 +101,19 @@ public:
                                         logTypeStringColored<lt>() + "] ");
             }
             (printLog(args), ...);
-#endif // QT_CORE_LIB
+#endif // LOGGER_USE_QT
 
+            logfileWriteMx.lock();
             if constexpr (lt != LoggingType::Empty) {
                 logfileMaster.log<lt, isSync>(timestamp + " [" + logTypeString<lt>() + "] ", args...);
             } else {
                 logfileMaster.log<lt, isSync>(args...);
             }
+            logfileWriteMx.unlock();
 
-#ifndef QT_CORE_LIB
+#ifndef LOGGER_USE_QT
             std::cout << std::endl;
-#endif // QT_CORE_LIB
+#endif // LOGGER_USE_QT
 
         };
 
@@ -126,19 +129,19 @@ public:
     }
 };
 
-#ifndef QT_CORE_LIB
+#ifndef LOGGER_USE_QT
 template <>
 inline void LoggingMaster::printLog(const bool& v) {
     std::cout << (v ? "true" : "false") << " ";
 }
-#endif // NOT QT_CORE_LIB
+#endif // NOT LOGGER_USE_QT
 
-#ifdef QT_CORE_LIB
+#ifdef LOGGER_USE_QT
 template <>
 inline void LoggingMaster::printLog(const std::string& v, QDebug& dbgStream) {
     dbgStream << v.c_str();
 }
-#endif // QT_CORE_LIB
+#endif // LOGGER_USE_QT
 
 }  // namespace Logging
 

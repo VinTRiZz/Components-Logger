@@ -7,6 +7,7 @@ LoggingFileMaster::LoggingFileMaster(const std::string &filePath) :
 #ifdef QT_CORE_LIB
     logfile(filePath.c_str())
 #else
+    #error "Compiling second version"
     logfilePath{ filePath }
 #endif // QT_CORE_LIB
 {

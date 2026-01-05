@@ -2,14 +2,14 @@
 
 #include <string>
 
-#ifdef QT_CORE
+#ifdef LOGGER_USE_QT
 #include <QDateTime>
 #else
 #include <iostream>
 #include <iomanip>
 #include <chrono>
 #include <sstream>
-#endif // QT_CORE
+#endif // LOGGER_USE_QT
 
 
 namespace Logging
@@ -68,7 +68,7 @@ constexpr const char* logTypeString() {
 }
 
 static std::string getLogfilename() {
-#ifdef QT_CORE
+#ifdef LOGGER_USE_QT
     return QDateTime::currentDateTime()
         .toString("yyyy-MM-dd_hh-mm-ss.log")
         .toStdString();
@@ -91,12 +91,12 @@ static std::string getLogfilename() {
     oss << std::put_time(&now_tm, "%Y-%m-%d_%H-%M-%S.log");
 
     return oss.str();
-#endif // QT_CORE
+#endif // LOGGER_USE_QT
 }
 
 
 static std::string getCurrentTimestampFormatted() {
-#ifdef QT_CORE
+#ifdef LOGGER_USE_QT
     return QDateTime::currentDateTime()
         .toString("yyyy-MM-dd_hh:mm:ss")
         .toStdString();
@@ -121,7 +121,7 @@ static std::string getCurrentTimestampFormatted() {
         << (now_ms.time_since_epoch().count() % 1000);
 
     return oss.str();
-#endif // QT_CORE
+#endif // LOGGER_USE_QT
 }
 
 }
