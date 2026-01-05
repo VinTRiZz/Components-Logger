@@ -76,11 +76,16 @@ class LoggingFileMaster
        logfile << v << " ";
    }
 
-   // Особенность STL версии
-   void addEndline() {
-       logfile << std::endl;
-   }
 #endif // QT_CORE_LIB
+
+
+   void addEndline() {
+#ifdef QT_CORE_LIB
+       logfileStream << Qt::endl;
+#else
+       logfile << std::endl;
+#endif // QT_CORE_LIB
+   }
 
 public:
    LoggingFileMaster(const std::string& filePath);
@@ -115,10 +120,6 @@ public:
 #endif // QT_CORE_LIB
            (writeToFile(args), ...);
             addEndline();
-
-#ifdef QT_CORE_LIB
-           logfileStream << Qt::endl;
-#endif // QT_CORE_LIB
 
            logfile.flush();
            logfile.close();
