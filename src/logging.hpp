@@ -14,7 +14,7 @@
 #include <boost/fusion/include/make_tuple.hpp>
 #endif  // C++ 17
 
-#ifdef LOGGER_USE_QT
+#ifdef COMPONENTS_LOGGER_USE_QT
 #include <QCoreApplication>
 #include <QDebug>
 #include <QDir>
@@ -22,7 +22,7 @@
 #else
 #include <fstream>
 #include <iostream>
-#endif // LOGGER_USE_QT
+#endif // COMPONENTS_LOGGER_USE_QT
 
 #include "logging_common.hpp"
 #include "logging_filemaster.hpp"
@@ -65,13 +65,13 @@ class LoggingMaster : public boost::noncopyable {
 
     template <typename T>
     void printLog(const T& v
-#ifdef LOGGER_USE_QT
+#ifdef COMPONENTS_LOGGER_USE_QT
     , QDebug& dbgStream) {
         dbgStream << v;
 #else
                   ) {
         std::cout << v << " ";
-#endif // LOGGER_USE_QT
+#endif // COMPONENTS_LOGGER_USE_QT
     }
 
 public:
@@ -89,7 +89,7 @@ public:
         auto timestamp = getCurrentTimestampFormatted();
 
         auto task = [=]() {
-#ifdef LOGGER_USE_QT
+#ifdef COMPONENTS_LOGGER_USE_QT
             auto dbgStream = qDebug();
             if constexpr (lt != LoggingType::Empty) {
                 printLog(timestamp + " [" + logTypeStringColored<lt>() + "] ", dbgStream);
@@ -101,7 +101,7 @@ public:
                                         logTypeStringColored<lt>() + "] ");
             }
             (printLog(args), ...);
-#endif // LOGGER_USE_QT
+#endif // COMPONENTS_LOGGER_USE_QT
 
             logfileWriteMx.lock();
             if constexpr (lt != LoggingType::Empty) {
@@ -111,9 +111,9 @@ public:
             }
             logfileWriteMx.unlock();
 
-#ifndef LOGGER_USE_QT
+#ifndef COMPONENTS_LOGGER_USE_QT
             std::cout << std::endl;
-#endif // LOGGER_USE_QT
+#endif // COMPONENTS_LOGGER_USE_QT
 
         };
 
@@ -129,19 +129,19 @@ public:
     }
 };
 
-#ifndef LOGGER_USE_QT
+#ifndef COMPONENTS_LOGGER_USE_QT
 template <>
 inline void LoggingMaster::printLog(const bool& v) {
     std::cout << (v ? "true" : "false") << " ";
 }
-#endif // NOT LOGGER_USE_QT
+#endif // NOT COMPONENTS_LOGGER_USE_QT
 
-#ifdef LOGGER_USE_QT
+#ifdef COMPONENTS_LOGGER_USE_QT
 template <>
 inline void LoggingMaster::printLog(const std::string& v, QDebug& dbgStream) {
     dbgStream << v.c_str();
 }
-#endif // LOGGER_USE_QT
+#endif // COMPONENTS_LOGGER_USE_QT
 
 }  // namespace Logging
 
