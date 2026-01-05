@@ -39,32 +39,6 @@ class LoggingFileMaster
     std::fstream logfile;       //! Логфайл
 #endif // QT_CORE_LIB
 
-    std::mutex logfileMx;  //! Мьютекс для единоличной записи данных в файл
-
-    bool isWorking{
-        false};  //! Флаг для определения, обязан ли логгер работать дальше
-    bool isThreadExited{true};  //! Флаг для определения, закончил ли выполнение
-                                //! поток вывода логов
-    std::thread logThread;      //! Поток вывода логов
-    std::list<std::function<void()>>
-        taskList;           //! Список задач по выводу данных в поток логов
-    std::mutex taskListMx;  //! Мьютекс для получения данных из списка задач по
-                            //! выводу данных
-    std::condition_variable addTaskCV;  //! Переменная для ожидания добавления
-                                        //! данных на вывод в поток логов
-    std::mutex addTaskMx;  //! Мьютекс для ожидания добавления данных на вывод в
-                           //! поток логов
-
-    /**
-    * @brief waitForTasks Ожидать сигнала о добавлении задачи на вывод
-    */
-   void waitForTasks();
-
-   /**
-    * @brief taskAdded Уведомить о получении задачи на вывод
-    */
-   void taskAdded();
-
 #ifdef QT_CORE_LIB
    template <typename T>
    void writeToFile(const T& v) {
@@ -100,41 +74,26 @@ public:
    void log(Args... args) {
        auto timestamp = getCurrentTimestampFormatted();
 
-       auto task = [=]() {
-           logfileMx.lock();
-
 #ifdef QT_CORE_LIB
-           logfile.open(QIODevice::Append);
-           if (!logfile.isOpen()) {
-               throw std::runtime_error(
-                   std::string("Error opening logfile (logfile path: ") +
-                   logfile.fileName().toStdString() + ")");
-           }
-#else
-            logfile.open(logfilePath, std::ios_base::out | std::ios_base::app);
-            if (!logfile.is_open()) {
-                throw std::runtime_error(
-                    std::string("Error opening logfile (logfile path: ") +
-                    logfilePath + ")");
-            }
-#endif // QT_CORE_LIB
-           (writeToFile(args), ...);
-            addEndline();
-
-           logfile.flush();
-           logfile.close();
-           logfileMx.unlock();
-       };
-
-       if constexpr (isSync) {
-           task();
-           return;
+       logfile.open(QIODevice::Append);
+       if (!logfile.isOpen()) {
+           throw std::runtime_error(
+               std::string("Error opening logfile (logfile path: ") +
+               logfile.fileName().toStdString() + ")");
        }
+#else
+        logfile.open(logfilePath, std::ios_base::out | std::ios_base::app);
+        if (!logfile.is_open()) {
+            throw std::runtime_error(
+                std::string("Error opening logfile (logfile path: ") +
+                logfilePath + ")");
+        }
+#endif // QT_CORE_LIB
+       (writeToFile(args), ...);
+        addEndline();
 
-       taskListMx.lock();
-       taskList.push_back(task);
-       taskListMx.unlock();
-       taskAdded();
+       logfile.flush();
+       logfile.close();
    }
 };
 
