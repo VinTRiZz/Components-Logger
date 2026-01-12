@@ -13,7 +13,7 @@
 #include <boost/fusion/include/make_tuple.hpp>
 #endif  // C++ 17
 
-#ifdef COMPONENTS_LOGGER_USE_QT
+#ifdef COMPONENTS_IS_ENABLED_QT
 #include <QCoreApplication>
 #include <QDebug>
 #include <QDir>
@@ -21,7 +21,7 @@
 #include <QPoint>
 #else
 #include <fstream>
-#endif // COMPONENTS_LOGGER_USE_QT
+#endif // COMPONENTS_IS_ENABLED_QT
 
 #include "logging_common.hpp"
 
@@ -31,15 +31,15 @@ namespace Logging
 
 class LoggingFileMaster
 {
-#ifdef COMPONENTS_LOGGER_USE_QT
+#ifdef COMPONENTS_IS_ENABLED_QT
     QFile logfile;                        //! Логфайл
     QTextStream logfileStream{&logfile};  //! Поток ввода в файл данных
 #else
     std::string logfilePath;    //! Путь до логфайла
     std::fstream logfile;       //! Логфайл
-#endif // COMPONENTS_LOGGER_USE_QT
+#endif // COMPONENTS_IS_ENABLED_QT
 
-#ifdef COMPONENTS_LOGGER_USE_QT
+#ifdef COMPONENTS_IS_ENABLED_QT
    template <typename T>
    void writeToFile(const T& v) {
        logfileStream << v << " ";
@@ -50,15 +50,15 @@ class LoggingFileMaster
        logfile << v << " ";
    }
 
-#endif // COMPONENTS_LOGGER_USE_QT
+#endif // COMPONENTS_IS_ENABLED_QT
 
 
    void addEndline() {
-#ifdef COMPONENTS_LOGGER_USE_QT
+#ifdef COMPONENTS_IS_ENABLED_QT
        logfileStream << Qt::endl;
 #else
        logfile << std::endl;
-#endif // COMPONENTS_LOGGER_USE_QT
+#endif // COMPONENTS_IS_ENABLED_QT
    }
 
 public:
@@ -72,7 +72,7 @@ public:
     */
    template<LoggingType lt, bool isSync, typename... Args>
    void log(Args... args) {
-#ifdef COMPONENTS_LOGGER_USE_QT
+#ifdef COMPONENTS_IS_ENABLED_QT
        logfile.open(QIODevice::Append);
        if (!logfile.isOpen()) {
            throw std::runtime_error(
@@ -86,7 +86,7 @@ public:
                 std::string("Error opening logfile (logfile path: ") +
                 logfilePath + ")");
         }
-#endif // COMPONENTS_LOGGER_USE_QT
+#endif // COMPONENTS_IS_ENABLED_QT
        (writeToFile(args), ...);
         addEndline();
 
@@ -95,10 +95,15 @@ public:
    }
 };
 
-#ifdef COMPONENTS_LOGGER_USE_QT
+#ifdef COMPONENTS_IS_ENABLED_QT
 template <>
 inline void LoggingFileMaster::writeToFile(const std::string& v) {
     logfileStream << v.c_str() << " ";
+}
+
+template <>
+inline void LoggingFileMaster::writeToFile(const QVariant& v) {
+    logfileStream << "QVariant(" << (v.isNull() ? "NULL" : (v.typeName() + v.toString())) << ")" << " ";
 }
 
 template <>
@@ -110,6 +115,6 @@ template <>
 inline void LoggingFileMaster::writeToFile(const QPointF& v) {
     logfileStream << "{" << v.x() << "; " << v.y() << "} ";
 }
-#endif // COMPONENTS_LOGGER_USE_QT
+#endif // COMPONENTS_IS_ENABLED_QT
 
 }

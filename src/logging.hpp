@@ -14,7 +14,7 @@
 #include <boost/fusion/include/make_tuple.hpp>
 #endif  // C++ 17
 
-#ifdef COMPONENTS_LOGGER_USE_QT
+#ifdef COMPONENTS_IS_ENABLED_QT
 #include <QCoreApplication>
 #include <QDebug>
 #include <QDir>
@@ -22,7 +22,7 @@
 #else
 #include <fstream>
 #include <iostream>
-#endif // COMPONENTS_LOGGER_USE_QT
+#endif // COMPONENTS_IS_ENABLED_QT
 
 #include "logging_common.hpp"
 #include "logging_filemaster.hpp"
@@ -65,13 +65,13 @@ class LoggingMaster : public boost::noncopyable {
 
     template <typename T>
     void printLog(const T& v
-#ifdef COMPONENTS_LOGGER_USE_QT
+#ifdef COMPONENTS_IS_ENABLED_QT
     , QDebug& dbgStream) {
         dbgStream << v;
 #else
                   ) {
         std::cout << v << " ";
-#endif // COMPONENTS_LOGGER_USE_QT
+#endif // COMPONENTS_IS_ENABLED_QT
     }
 
 public:
@@ -89,7 +89,7 @@ public:
         auto timestamp = getCurrentTimestampFormatted();
 
         auto task = [=]() {
-#ifdef COMPONENTS_LOGGER_USE_QT
+#ifdef COMPONENTS_IS_ENABLED_QT
             auto dbgStream = qDebug();
             if constexpr (lt != LoggingType::Empty) {
                 printLog(timestamp + " [" + logTypeStringColored<lt>() + "] ", dbgStream);
@@ -101,7 +101,7 @@ public:
                                         logTypeStringColored<lt>() + "] ");
             }
             (printLog(args), ...);
-#endif // COMPONENTS_LOGGER_USE_QT
+#endif // COMPONENTS_IS_ENABLED_QT
 
             logfileWriteMx.lock();
             if constexpr (lt != LoggingType::Empty) {
@@ -111,9 +111,9 @@ public:
             }
             logfileWriteMx.unlock();
 
-#ifndef COMPONENTS_LOGGER_USE_QT
+#ifndef COMPONENTS_IS_ENABLED_QT
             std::cout << std::endl;
-#endif // COMPONENTS_LOGGER_USE_QT
+#endif // COMPONENTS_IS_ENABLED_QT
 
         };
 
@@ -129,19 +129,19 @@ public:
     }
 };
 
-#ifndef COMPONENTS_LOGGER_USE_QT
+#ifndef COMPONENTS_IS_ENABLED_QT
 template <>
 inline void LoggingMaster::printLog(const bool& v) {
     std::cout << (v ? "true" : "false") << " ";
 }
-#endif // NOT COMPONENTS_LOGGER_USE_QT
+#endif // NOT COMPONENTS_IS_ENABLED_QT
 
-#ifdef COMPONENTS_LOGGER_USE_QT
+#ifdef COMPONENTS_IS_ENABLED_QT
 template <>
 inline void LoggingMaster::printLog(const std::string& v, QDebug& dbgStream) {
     dbgStream << v.c_str();
 }
-#endif // COMPONENTS_LOGGER_USE_QT
+#endif // COMPONENTS_IS_ENABLED_QT
 
 }  // namespace Logging
 
