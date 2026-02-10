@@ -116,7 +116,7 @@ static std::string getCurrentTimestampFormatted() {
 #endif
 
     std::ostringstream oss;
-    oss << std::put_time(&now_tm, "%Y-%m-%d %H:%M:%S")
+    oss << std::put_time(&now_tm, "%Y-%m-%dT%H:%M:%S") // Unified format
         << '.' << std::setfill('0') << std::setw(3)
         << (now_ms.time_since_epoch().count() % 1000);
 
