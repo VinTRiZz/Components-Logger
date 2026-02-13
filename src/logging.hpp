@@ -146,22 +146,22 @@ inline void LoggingMaster::printLog(const std::string& v, QDebug& dbgStream) {
 }  // namespace Logging
 
 // Параллельный логгер (макросы вывода данных через другой поток)
-#define LOG_TYPENAME(LOGGING_LOGITEM)                                          \
+#define COMPLOG_TYPENAME(LOGGING_LOGITEM)                                          \
     Logging::LoggingMaster::getInstance()                                      \
         .log<Logging::LoggingType::Debug, false>("Type of object: [", #LOGGING_LOGITEM, "] is: [", boost::core::demangle(typeid(LOGGING_LOGITEM).name()), "]")
-#define LOG_EMPTY(...)                                                         \
+#define COMPLOG_EMPTY(...)                                                         \
     Logging::LoggingMaster::getInstance()                                      \
         .log<Logging::LoggingType::Empty, false>(__VA_ARGS__)
-#define LOG_DEBUG(...)                                                         \
+#define COMPLOG_DEBUG(...)                                                         \
     Logging::LoggingMaster::getInstance()                                      \
         .log<Logging::LoggingType::Debug, false>(__VA_ARGS__)
-#define LOG_INFO(...)                                                          \
+#define COMPLOG_INFO(...)                                                          \
     Logging::LoggingMaster::getInstance()                                      \
         .log<Logging::LoggingType::Info, false>(__VA_ARGS__)
-#define LOG_WARNING(...)                                                       \
+#define COMPLOG_WARNING(...)                                                       \
     Logging::LoggingMaster::getInstance()                                      \
         .log<Logging::LoggingType::Warning, false>(__VA_ARGS__)
-#define LOG_ERROR(...)                                                         \
+#define COMPLOG_ERROR(...)                                                         \
     Logging::LoggingMaster::getInstance()                                      \
         .log<Logging::LoggingType::Error, false>(__VA_ARGS__)
 #define LOG_OK(...)                                                            \
@@ -169,24 +169,24 @@ inline void LoggingMaster::printLog(const std::string& v, QDebug& dbgStream) {
         .log<Logging::LoggingType::Ok, false>(__VA_ARGS__)
 
 // Синхронная версия логгера (макросы вывода данных через текущий поток)
-#define LOG_TYPENAME_SYNC(LOGGING_LOGITEM)                                     \
+#define COMPLOG_TYPENAME_SYNC(LOGGING_LOGITEM)                                     \
     Logging::LoggingMaster::getInstance()                                      \
         .log<Logging::LoggingType::Debug, true>("Type of object: [", #LOGGING_LOGITEM, "] is: [", boost::core::demangle(typeid(LOGGING_LOGITEM).name()), "]")
-#define LOG_EMPTY_SYNC(...)                                                    \
+#define COMPLOG_EMPTY_SYNC(...)                                                    \
     Logging::LoggingMaster::getInstance()                                      \
         .log<Logging::LoggingType::Empty, true>(__VA_ARGS__)
-#define LOG_DEBUG_SYNC(...)                                                    \
+#define COMPLOG_DEBUG_SYNC(...)                                                    \
     Logging::LoggingMaster::getInstance()                                      \
         .log<Logging::LoggingType::Debug, true>(__VA_ARGS__)
-#define LOG_INFO_SYNC(...)                                                     \
+#define COMPLOG_INFO_SYNC(...)                                                     \
     Logging::LoggingMaster::getInstance()                                      \
         .log<Logging::LoggingType::Info, true>(__VA_ARGS__)
-#define LOG_WARNING_SYNC(...)                                                  \
+#define COMPLOG_WARNING_SYNC(...)                                                  \
     Logging::LoggingMaster::getInstance()                                      \
         .log<Logging::LoggingType::Warning, true>(__VA_ARGS__)
-#define LOG_ERROR_SYNC(...)                                                    \
+#define COMPLOG_ERROR_SYNC(...)                                                    \
     Logging::LoggingMaster::getInstance()                                      \
         .log<Logging::LoggingType::Error, true>(__VA_ARGS__)
-#define LOG_OK_SYNC(...)                                                       \
+#define COMPLOG_OK_SYNC(...)                                                       \
     Logging::LoggingMaster::getInstance().log<Logging::LoggingType::Ok, true>( \
         __VA_ARGS__)
