@@ -11,9 +11,9 @@ namespace LoggingOld
 namespace Defines
 {
 
-const QString LOG_FILE_PATH {"./testlog.txt"};
+const QString COMPLOG_FILE_PATH {"./testlog.txt"};
 
-const QString LOG_DELIMETER {
+const QString COMPLOG_DELIMETER {
     "-------------------------------------------------------------------------------\n"
     "-------------------------------------------------------------------------------\n"
 };
