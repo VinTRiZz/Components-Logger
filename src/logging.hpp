@@ -164,7 +164,7 @@ inline void LoggingMaster::printLog(const std::string& v, QDebug& dbgStream) {
 #define COMPLOG_ERROR(...)                                                         \
     Logging::LoggingMaster::getInstance()                                      \
         .log<Logging::LoggingType::Error, false>(__VA_ARGS__)
-#define LOG_OK(...)                                                            \
+#define COMPLOG_OK(...)                                                            \
     Logging::LoggingMaster::getInstance()                                      \
         .log<Logging::LoggingType::Ok, false>(__VA_ARGS__)
 
