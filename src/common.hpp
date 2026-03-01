@@ -12,33 +12,33 @@
 #endif // COMPONENTS_IS_ENABLED_QT
 
 
-namespace Logging
+namespace Logger
 {
 
 
 /**
  * @brief The LoggingType enum Тип данных для вывода
  */
-enum class LoggingType { Empty, Debug, Info, Warning, Error, Ok };
+enum class Level { Empty, Debug, Info, Warning, Error, Ok };
 
 /**
- * @brief logTypeStringColored Получение выделенного цветом текста для логов
- * @return Строка с управляющими символами
+ * @brief createLogtypeColoredString    Получение выделенного цветом текста для логов
+ * @return                              Строка с управляющими символами
  */
-template<LoggingType LogType>
-constexpr const char* logTypeStringColored() {
+template<Level LogType>
+constexpr const char* createLogtypeColoredString() {
     switch (LogType) {
-        case LoggingType::Info:
+        case Level::Info:
             return "\033[37m INFO \033[0m";
-        case LoggingType::Warning:
+        case Level::Warning:
             return "\033[33m WARN \033[0m";
 
-        case LoggingType::Ok:
+        case Level::Ok:
             return "\033[32m  OK  \033[0m";
-        case LoggingType::Error:
+        case Level::Error:
             return "\033[31m FAIL \033[0m";
 
-        case LoggingType::Debug:
+        case Level::Debug:
             return "\033[35m DEBG \033[0m";
     }
     return "";
@@ -46,28 +46,32 @@ constexpr const char* logTypeStringColored() {
 
 /**
  * @brief logTypeString Получение не выделенного цветом текста для логов
- * @return Строка без управляющих последовательностей
+ * @return              Строка без управляющих последовательностей
  */
-template<LoggingType LogType>
-constexpr const char* logTypeString() {
+template<Level LogType>
+constexpr const char* createLogtypeString() {
     switch (LogType) {
-        case LoggingType::Info:
+        case Level::Info:
             return " INFO ";
-        case LoggingType::Warning:
+        case Level::Warning:
             return " WARN ";
 
-        case LoggingType::Ok:
+        case Level::Ok:
             return "  OK  ";
-        case LoggingType::Error:
+        case Level::Error:
             return " FAIL ";
 
-        case LoggingType::Debug:
+        case Level::Debug:
             return " DEBG ";
     }
     return "";
 }
 
-static std::string getLogfilename() {
+/**
+ * @brief createLofgileName Функция создания названия для логфайла
+ * @return                  Строка названия. Пример: 2026-12-31_23-59-59.log
+ */
+static std::string createLogfileName() {
 #ifdef COMPONENTS_IS_ENABLED_QT
     return QDateTime::currentDateTime()
         .toString("yyyy-MM-dd_hh-mm-ss.log")
@@ -95,7 +99,11 @@ static std::string getLogfilename() {
 }
 
 
-static std::string getCurrentTimestampFormatted() {
+/**
+ * @brief getTimestamp  Функция получения текущего момента времени
+ * @return              Момент времени в стандартном формате
+ */
+static std::string getTimestamp() {
 #ifdef COMPONENTS_IS_ENABLED_QT
     return QDateTime::currentDateTime()
         .toString("yyyy-MM-dd_hh:mm:ss")
