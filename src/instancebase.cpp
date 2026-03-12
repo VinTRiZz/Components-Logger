@@ -2,69 +2,58 @@
 
 #include <condition_variable>
 #include <functional>
-#include <list>
+#include <deque>
 #include <mutex>
 #include <thread>
 #include <atomic>
+#include <future>
 
 #include <filesystem>
-
-#include "common.hpp"
 
 namespace Logger {
 
 struct InstanceBase::Impl {
-    std::atomic<bool> isWorking         {false};
-    std::atomic<bool> isThreadExited    {true};
-
-    std::thread taskProcessingThread;
-
-    std::mutex taskListMx;
-    std::list<std::function<void()> > taskList;
-
+    std::atomic<bool>       isWorking {false};
+    std::future<void>       threadFut;
+    std::deque<task_t>      taskDeq;
     std::condition_variable notifyCV;
-    std::mutex notifyMx;
+    std::mutex              notifyMx;
+    std::mutex              outputMx; // Just for printing in right order
 };
 
 InstanceBase::InstanceBase() :
     d {new Impl}
 {
     d->isWorking.store(std::memory_order_release);
-    d->taskProcessingThread = std::thread([this]() {
-        d->isThreadExited = false;
+    std::packaged_task<void()> task([this]() {
+        task_t nextTask;
+
         while (d->isWorking.load(std::memory_order_acquire)) {
-            waitForTasks();
+            std::unique_lock<std::mutex> lock(d->notifyMx);
+            while (!d->taskDeq.empty()) {
+                nextTask = d->taskDeq.front();
+                d->taskDeq.pop_front();
+                lock.unlock();
 
-            d->taskListMx.lock();
-            while (!d->taskList.empty()) {
-                auto nextTask = d->taskList.front();
-                d->taskList.pop_front();
-                d->taskListMx.unlock();
+                {
+                    std::lock_guard<std::mutex> lockg(d->outputMx);
+                    nextTask();
+                }
 
-                nextTask();
-                d->taskListMx.lock();
+                lock.lock();
             }
-            d->taskListMx.unlock();
+            d->notifyCV.wait(lock);
         }
-        d->isThreadExited.store(true, std::memory_order_release);
     });
+    d->threadFut = task.get_future();
+    std::thread(std::move(task)).detach();
 }
 
 InstanceBase::~InstanceBase()
 {
-    if (d->isWorking.load(std::memory_order_acquire)) {
+    if (d->threadFut.valid()) {
         deinit();
     }
-}
-
-void InstanceBase::waitForTasks() {
-    std::unique_lock<std::mutex> lock(d->notifyMx);
-    d->notifyCV.wait(lock);
-}
-
-void InstanceBase::notifyTaskAdded() {
-    std::unique_lock<std::mutex> lock(d->notifyMx);
-    d->notifyCV.notify_one();
 }
 
 void InstanceBase::callInit(const std::string &logfileDir)
@@ -75,18 +64,28 @@ void InstanceBase::callInit(const std::string &logfileDir)
 void InstanceBase::deinit()
 {
     d->isWorking.store(false, std::memory_order_release);
-    while (!d->isThreadExited) {
-        notifyTaskAdded();
+    while (d->threadFut.wait_for(std::chrono::microseconds(1)) != std::future_status::ready) {
+        std::unique_lock<std::mutex> lock(d->notifyMx);
+        d->notifyCV.notify_one();
     }
-    if (d->taskProcessingThread.joinable()) {
-        d->taskProcessingThread.join();
+
+    for (auto& task : d->taskDeq) {
+        task();
     }
+    d->taskDeq.clear();
 }
 
-void InstanceBase::addTask(std::function<void ()> &&tsk)
+void InstanceBase::addTask(task_t &&tsk)
 {
-    d->taskList.emplace_back(std::move(tsk));
-    notifyTaskAdded();
+    std::unique_lock<std::mutex> lock(d->notifyMx);
+    d->taskDeq.emplace_back(std::move(tsk));
+    d->notifyCV.notify_one();
+}
+
+void InstanceBase::addTaskSync(task_t &&tsk)
+{
+    std::lock_guard<std::mutex> lock(d->outputMx);
+    tsk();
 }
 
 } // namespace Logger

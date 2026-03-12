@@ -64,9 +64,6 @@ public:
     }
 
 private:
-    void waitForTasks();
-    void notifyTaskAdded();
-
     struct Impl;
     std::unique_ptr<Impl> d;
 
@@ -76,7 +73,9 @@ protected:
     virtual void init(const std::string& logfileDir) = 0;
     void deinit();
 
-    void addTask(std::function<void(void)>&& tsk);
+    using task_t = std::function<void()>;
+    void addTask(task_t&& tsk);
+    void addTaskSync(task_t&& tsk);
 };
 
 } // namespace Logger

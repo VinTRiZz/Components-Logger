@@ -44,7 +44,7 @@ public:
         };
 
         if constexpr (isSync) {
-            task();
+            addTaskSync(std::move(task));
         } else {
             addTask(std::move(task));
         }
