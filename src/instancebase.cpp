@@ -24,7 +24,7 @@ struct InstanceBase::Impl {
 InstanceBase::InstanceBase() :
     d {new Impl}
 {
-    d->isWorking.store(std::memory_order_release);
+    d->isWorking.store(true, std::memory_order_release);
     std::packaged_task<void()> task([this]() {
         task_t nextTask;
 
