@@ -14,8 +14,13 @@ using namespace Logger;
  */
 class Instance final : public InstanceBase {
     template <typename T>
-    void printLog(const T& v) {
+    void printLog(T&& v) {
         std::cout << v << " ";
+    }
+
+    template <typename T>
+    void printErr(T&& v) {
+        std::cerr << v << " ";
     }
 
 public:
@@ -30,17 +35,28 @@ public:
     void log(Args&&... args) {
         auto task = [=]() {
             auto timestamp = getTimestamp();
-            if constexpr (lt != Level::Empty) {
+            if constexpr (lt != Level::Empty && lt != Level::Error && lt != Level::Warning) {
                 printLog(timestamp + " [" + createLogtypeColoredString<lt>() + "] ");
             }
-            (printLog(args), ...);
+
+            if constexpr (lt == Level::Error || lt == Level::Warning) {
+                printErr(timestamp + " [" + createLogtypeColoredString<lt>() + "] ");
+                (printErr(args), ...);
+            } else {
+                (printLog(args), ...);
+            }
 
             if constexpr (lt != Level::Empty) {
                 m_logfileWriter.log<lt>(timestamp + " [" + createLogtypeString<lt>() + "] ", args...);
             } else {
                 m_logfileWriter.log<lt>(args...);
             }
-            std::cout << std::endl;
+
+            if constexpr (lt == Level::Error || lt == Level::Warning) {
+                std::cerr << std::endl;
+            } else {
+                std::cout << std::endl;
+            }
         };
 
         if constexpr (isSync) {
