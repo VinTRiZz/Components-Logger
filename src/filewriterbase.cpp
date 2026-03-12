@@ -32,8 +32,11 @@ void FileWriterBase::setLogfile(const std::string_view &filePath)
     m_logfilePath = std::filesystem::absolute(std::string(filePath));
 }
 
-std::string_view FileWriterBase::getLogfilePath() const noexcept
+std::string_view FileWriterBase::getLogfilePath() const
 {
+    if (m_logfilePath.empty()) {
+        throw std::runtime_error("Invalid logfile (empty path)");
+    }
     return m_logfilePath;
 }
 

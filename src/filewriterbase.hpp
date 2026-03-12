@@ -17,7 +17,7 @@ public:
 
     virtual void setLogfile(const std::string& filePath);
     virtual void setLogfile(const std::string_view& filePath);
-    std::string_view getLogfilePath() const noexcept;
+    std::string_view getLogfilePath() const;
 
 private:
     struct Impl;
