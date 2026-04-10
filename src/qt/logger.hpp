@@ -28,7 +28,7 @@ public:
      */
     template<Level lt, bool isSync, typename... Args>
     void log(Args&&... args) {
-        auto task = [=]() {
+        auto task = [=, this]() {
             auto timestamp = getTimestamp();
             auto dbgStream = qDebug();
             if constexpr (lt != Level::Empty) {

@@ -33,7 +33,7 @@ public:
      */
     template<Level lt, bool isSync, typename... Args>
     void log(Args&&... args) {
-        auto task = [=]() {
+        auto task = [=, this]() {
             auto timestamp = getTimestamp();
             if constexpr (lt != Level::Empty && lt != Level::Error && lt != Level::Warning) {
                 printLog(timestamp + " [" + createLogtypeColoredString<lt>() + "] ");
