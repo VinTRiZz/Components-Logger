@@ -7,3 +7,9 @@ else()
 endif()
 
 COMPONENTS_ADD_COMPONENT_TEST(Logger)
+
+target_precompile_headers(Logger PUBLIC
+    "src/common.hpp"
+    "src/filewriterbase.hpp"
+    "src/instancebase.hpp"
+)
