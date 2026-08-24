@@ -1,8 +1,9 @@
-#pragma once 
+#pragma once
 #ifndef COMPONENTS_IS_ENABLED_QT
 
 #include <iostream>
 
+#include "../templates/helper_functions.hpp"
 #include "../instancebase.hpp"
 #include "filewriter.hpp"
 
@@ -13,15 +14,6 @@ using namespace Logger;
  * @brief The Instance class Мастер вывода информации (логов). Синглетон
  */
 class Instance final : public InstanceBase {
-    template <typename T>
-    void printLog(T&& v) {
-        std::cout << v << " ";
-    }
-
-    template <typename T>
-    void printErr(T&& v) {
-        std::cerr << v << " ";
-    }
 
 public:
     ~Instance();
@@ -36,14 +28,14 @@ public:
         auto task = [=, this]() {
             auto timestamp = getTimestamp();
             if constexpr (lt != Level::Empty && lt != Level::Error && lt != Level::Warning) {
-                printLog(timestamp + " [" + createLogtypeColoredString<lt>() + "] ");
+                writeData(std::cout, timestamp + " [" + createLogtypeColoredString<lt>() + "] ");
             }
 
             if constexpr (lt == Level::Error || lt == Level::Warning) {
-                printErr(timestamp + " [" + createLogtypeColoredString<lt>() + "] ");
-                (printErr(args), ...);
+                writeData(std::cerr, timestamp + " [" + createLogtypeColoredString<lt>() + "] ");
+                (writeData(std::cerr, args), ...);
             } else {
-                (printLog(args), ...);
+                (writeData(std::cout, args), ...);
             }
 
             if constexpr (lt != Level::Empty) {
@@ -53,9 +45,9 @@ public:
             }
 
             if constexpr (lt == Level::Error || lt == Level::Warning) {
-                std::cerr << std::endl;
+                std::endl(std::cout);
             } else {
-                std::cout << std::endl;
+                std::endl(std::cout);
             }
         };
 
@@ -72,11 +64,6 @@ private:
     void init(const std::string& logfileDir) override;
     FileWriter m_logfileWriter; //! Мастер записи данных в файл
 };
-
-template <>
-inline void Instance::printLog(const bool& v) {
-    std::cout << (v ? "true" : "false") << " ";
-}
 
 }
 

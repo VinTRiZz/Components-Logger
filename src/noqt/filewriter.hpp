@@ -4,6 +4,7 @@
 
 #include <fstream>
 
+#include "../templates/helper_functions.hpp"
 #include "../common.hpp"
 #include "../filewriterbase.hpp"
 
@@ -14,10 +15,6 @@ using namespace Logger;
 
 class FileWriter final : public FileWriterBase
 {
-    template <typename T>
-    void writeToFile(const T& v) {
-        m_logfile << v << " ";
-    }
 public:
     using FileWriterBase::FileWriterBase;
 
@@ -35,7 +32,7 @@ public:
                         std::string("Error opening logfile (logfile path: ") +
                         getLogfilePath().data() + ")");
         }
-        (writeToFile(args), ...);
+        (writeData(m_logfile, args), ...);
         m_logfile << std::endl;
 
         m_logfile.flush();
