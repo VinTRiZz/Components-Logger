@@ -12,6 +12,8 @@
 #include <functional>
 #include <string>
 
+#include "templates/helper_functions.hpp"
+
 namespace Logger {
 
 /**

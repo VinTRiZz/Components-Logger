@@ -3,7 +3,6 @@
 
 #include <iostream>
 
-#include "../templates/helper_functions.hpp"
 #include "../instancebase.hpp"
 #include "filewriter.hpp"
 
@@ -45,7 +44,7 @@ public:
             }
 
             if constexpr (lt == Level::Error || lt == Level::Warning) {
-                std::endl(std::cout);
+                std::endl(std::cerr);
             } else {
                 std::endl(std::cout);
             }

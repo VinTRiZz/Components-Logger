@@ -2,6 +2,13 @@
 
 #include "helper_structures.hpp"
 
+#ifdef COMPONENTS_IS_ENABLED_QT
+
+#include <QString>
+#include <QVariant>
+
+#endif // Qt only
+
 namespace Logger
 {
 
@@ -47,9 +54,36 @@ void writeData(StreamT&& oStream, T&& oValue) {
             std::advance(pIt, 1);
         }
         writeData(oStream, "}");
-    } else if constexpr(std::is_same_v<BaseT, bool>) {
+    }
+#ifdef COMPONENTS_IS_ENABLED_QT
+    else if constexpr(std::is_same_v<BaseT, std::string>) {
+        oStream << oValue.c_str();
+    }
+    else if constexpr(std::is_same_v<BaseT, QVariant>) {
+        writeData(oStream, "QVariant(");
+        writeData(oStream, oValue.isNull() ? "NULL" : (oValue.typeName() + oValue.toString()));
+        writeData(oStream, ")");
+    }
+    else if constexpr(std::is_same_v<BaseT, QPoint> || std::is_same_v<BaseT, QPointF>) {
+        writeData(oStream, "{");
+        writeData(oStream, oValue.x());
+        writeData(oStream, ";");
+        writeData(oStream, oValue.y());
+        writeData(oStream, "}");
+    }
+#else
+    else if constexpr(std::is_same_v<BaseT, bool>) {
         oStream << (oValue ? "true" : "false") << " ";
-    } else {
+    }
+#endif // Qt only
+
+    else {
+
+#ifdef COMPONENTS_IS_ENABLED_QT
+    if constexpr(std::is_same_v<std::decay_t<StreamT>, QDebug>) { // corner case
+        oStream << oValue;
+    } else
+#endif // Qt only
         oStream << oValue << " ";
     }
 }

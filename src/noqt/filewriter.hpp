@@ -4,7 +4,6 @@
 
 #include <fstream>
 
-#include "../templates/helper_functions.hpp"
 #include "../common.hpp"
 #include "../filewriterbase.hpp"
 

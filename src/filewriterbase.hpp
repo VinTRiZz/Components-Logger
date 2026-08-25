@@ -3,6 +3,8 @@
 #include <string>
 #include <memory>
 
+#include "templates/helper_functions.hpp"
+
 namespace Logger
 {
 

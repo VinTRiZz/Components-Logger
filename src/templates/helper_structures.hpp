@@ -4,6 +4,11 @@
 
 #include <string>
 
+#ifdef COMPONENTS_IS_ENABLED_QT
+#include <QString>
+#include <QStringRef>
+#endif // Qt only
+
 namespace Logger
 {
 
@@ -15,8 +20,14 @@ struct IsString<
     T,
     std::enable_if_t<
         std::disjunction_v<
-        std::is_same<T, std::string>,
-        std::is_same<T, std::string_view>
+        std::is_same<T, std::string>
+        , std::is_same<T, std::string_view>
+
+#ifdef COMPONENTS_IS_ENABLED_QT
+        , std::is_same<T, QString>
+        , std::is_same<T, QStringRef>
+#endif // Qt only
+
         > >
     > : public std::true_type { };
 
