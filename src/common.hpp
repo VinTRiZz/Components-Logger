@@ -2,15 +2,10 @@
 
 #include <string>
 
-#ifdef COMPONENTS_IS_ENABLED_QT
-#include <QDateTime>
-#else
 #include <iostream>
 #include <iomanip>
 #include <chrono>
 #include <sstream>
-#endif // COMPONENTS_IS_ENABLED_QT
-
 
 namespace Logger
 {
@@ -72,11 +67,6 @@ constexpr const char* createLogtypeString() {
  * @return                  Строка названия. Пример: 2026-12-31_23-59-59.log
  */
 static std::string createLogfileName() {
-#ifdef COMPONENTS_IS_ENABLED_QT
-    return QDateTime::currentDateTime()
-        .toString("yyyy-MM-dd_hh-mm-ss.log")
-        .toStdString();
-#else
     auto now = std::chrono::system_clock::now();
     auto now_ms = std::chrono::time_point_cast<std::chrono::milliseconds>(now);
 
@@ -95,7 +85,6 @@ static std::string createLogfileName() {
     oss << std::put_time(&now_tm, "%Y-%m-%d_%H-%M-%S.log");
 
     return oss.str();
-#endif // COMPONENTS_IS_ENABLED_QT
 }
 
 
@@ -104,11 +93,6 @@ static std::string createLogfileName() {
  * @return              Момент времени в стандартном формате
  */
 static std::string getTimestamp() {
-#ifdef COMPONENTS_IS_ENABLED_QT
-    return QDateTime::currentDateTime()
-        .toString("yyyy-MM-dd_hh:mm:ss")
-        .toStdString();
-#else
     auto now = std::chrono::system_clock::now();
     auto now_ms = std::chrono::time_point_cast<std::chrono::milliseconds>(now);
 
@@ -129,7 +113,6 @@ static std::string getTimestamp() {
         << (now_ms.time_since_epoch().count() % 1000);
 
     return oss.str();
-#endif // COMPONENTS_IS_ENABLED_QT
 }
 
 }

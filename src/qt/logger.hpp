@@ -13,11 +13,6 @@ using namespace Logger;
  * @brief The Instance class Мастер вывода информации (логов). Синглетон
  */
 class Instance : public InstanceBase {
-    template <typename T>
-    void printLog(const T& v, QDebug& dbgStream) {
-        dbgStream << v;
-    }
-
 public:
     ~Instance();
 
@@ -30,11 +25,22 @@ public:
     void log(Args&&... args) {
         auto task = [=, this]() {
             auto timestamp = getTimestamp();
-            auto dbgStream = qDebug();
-            if constexpr (lt != Level::Empty) {
-                printLog(timestamp + " [" + createLogtypeColoredString<lt>() + "] ", dbgStream);
+            QDebug dbgStream((QIODevice*)nullptr);
+            if constexpr (lt == Level::Error || lt == Level::Warning) {
+                dbgStream = qCritical();
+            } else {
+                dbgStream = qDebug();
             }
-            (printLog(args, dbgStream), ...);
+
+            if constexpr (lt != Level::Empty && lt != Level::Error && lt != Level::Warning) {
+                writeData(dbgStream, timestamp + " [" + createLogtypeColoredString<lt>() + "] ");
+            }
+            if constexpr (lt == Level::Error || lt == Level::Warning) {
+                writeData(dbgStream, timestamp + " [" + createLogtypeColoredString<lt>() + "] ");
+                (writeData(dbgStream, args), ...);
+            } else {
+                (writeData(dbgStream, args), ...);
+            }
 
             if constexpr (lt != Level::Empty) {
                 m_logfileWriter.log<lt>(timestamp + " [" + createLogtypeString<lt>() + "] ", args...);
@@ -58,11 +64,6 @@ private:
     // InstanceBase interface
     void init(const std::string &logfileDir) override;
 };
-
-template <>
-inline void Instance::printLog(const std::string& v, QDebug& dbgStream) {
-    dbgStream << v.c_str();
-}
 
 }
 
