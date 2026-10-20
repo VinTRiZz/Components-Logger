@@ -70,12 +70,3 @@ using Instance = LoggerNoQt::Instance;
 #define COMPLOG_SYNC_WARNING(...)   COMPLOG_PRIVATE_LOG_BASE(Warning, true, __VA_ARGS__)
 #define COMPLOG_SYNC_ERROR(...)     COMPLOG_PRIVATE_LOG_BASE(Error,   true, __VA_ARGS__)
 #define COMPLOG_SYNC_OK(...)        COMPLOG_PRIVATE_LOG_BASE(Ok,      true, __VA_ARGS__)
-
-
-// Обратная совместимость со старой версией дефайнов
-#define COMPLOG_EMPTY_SYNC(...)     COMPLOG_SYNC_EMPTY(__VA_ARGS__)
-#define COMPLOG_DEBUG_SYNC(...)     COMPLOG_SYNC_DEBUG(__VA_ARGS__)
-#define COMPLOG_INFO_SYNC(...)      COMPLOG_SYNC_INFO(__VA_ARGS__)
-#define COMPLOG_WARNING_SYNC(...)   COMPLOG_SYNC_WARNING(__VA_ARGS__)
-#define COMPLOG_ERROR_SYNC(...)     COMPLOG_SYNC_ERROR(__VA_ARGS__)
-#define COMPLOG_OK_SYNC(...)        COMPLOG_SYNC_OK(__VA_ARGS__)
