@@ -59,10 +59,10 @@ using Instance = LoggerNoQt::Instance;
 
 // Синхронная версия логгера (макросы вывода данных через текущий поток)
 #if __has_include(<boost/core/demangle.hpp>)
-#define COMPLOG_TYPENAME_SYNC(Logger_LOGITEM) \
+#define COMPLOG_SYNC_TYPENAME(Logger_LOGITEM) \
     COMPLOG_PRIVATE_LOG_BASE(Debug, true, "Type of object: [", #Logger_LOGITEM, "] is: [", boost::core::demangle(typeid(Logger_LOGITEM).name()), "]")
 #else
-#define COMPLOG_TYPENAME_SYNC(Logger_LOGITEM) #error "No boost::core::demangle found. Install it before calling this macro"
+#define COMPLOG_SYNC_TYPENAME(Logger_LOGITEM) #error "No boost::core::demangle found. Install it before calling this macro"
 #endif // has (<boost/core/demangle.hpp>)
 #define COMPLOG_SYNC_EMPTY(...)     COMPLOG_PRIVATE_LOG_BASE(Empty,   true, __VA_ARGS__)
 #define COMPLOG_SYNC_DEBUG(...)     COMPLOG_PRIVATE_LOG_BASE(Debug,   true, __VA_ARGS__)
