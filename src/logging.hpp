@@ -25,6 +25,9 @@ using Instance = LoggerNoQt::Instance;
 
 }
 
+// Logger instance
+#define COMPLOG_GET_INSTANCE() \
+    Logger::Instance::getInstance<Logger::Instance>()
 
 // Задание рабочей директории
 #define COMPLOG_SET_LOGSDIR(logsBasedir) \

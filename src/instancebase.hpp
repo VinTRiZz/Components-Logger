@@ -54,11 +54,20 @@ public:
 
     /**
      *  @brief createInstance   Запросить глобальную инстанцию логгера
+     */
+    template <typename DerivedInstanceT>
+    static DerivedInstanceT& getInstance() {
+        static DerivedInstanceT inst;
+        return inst;
+    }
+
+    /**
+     *  @brief createInstance   Запросить глобальную инстанцию логгера с инициализацией
      *  @param logfileDir       Директория для сохранения логфайлов. При NULL std::string игнорируется
      */
     template <typename DerivedInstanceT>
-    static DerivedInstanceT& getInstance(const std::string &logfileDir = {}) {
-        static DerivedInstanceT inst;
+    static DerivedInstanceT& getInstance(const std::string &logfileDir) {
+        auto& inst = getInstance<DerivedInstanceT>();
         if (!logfileDir.empty()) {
             inst.callInit(logfileDir);
         }
