@@ -42,7 +42,10 @@ InstanceBase::InstanceBase() :
 
                 lock.lock();
             }
-            d->notifyCV.wait(lock);
+            d->notifyCV.wait(lock, [this]() -> bool {
+                // Spurious wakeup workaround
+                return !d->taskDeq.empty() || !d->isWorking.load(std::memory_order_acquire);
+            });
         }
     });
     d->threadFut = task.get_future();
