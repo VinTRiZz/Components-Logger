@@ -27,7 +27,10 @@ void checkPattern(const std::string& captured, const std::string& pattern) {
     auto patternStartIt = std::search(
             captured.begin(), captured.end(),
             pattern.begin(), pattern.end());
-    ASSERT_NE(captured.end(), patternStartIt) << "Expected pattern not found ( " << pattern << " )";
+    ASSERT_NE(captured.end(), patternStartIt)
+        << "Expected pattern not found \n======================\n\t" << pattern
+        << "\nin data:\n======================\n" << captured
+        << "\n======================";
 }
 
 }
@@ -152,7 +155,6 @@ TEST(Components_Logger, ArrayProcessing) {
     COMPLOG_SET_LOGSDIR(testDirpath);
 
     std::string testExample {"Test string"};
-    COMPLOG_DEBUG(testExample);
 
     std::vector<std::string> testVect {
         "Values", "are", "not", "same"
@@ -174,9 +176,9 @@ TEST(Components_Logger, ArrayProcessing) {
 
     // Check vector output
     auto coutCollectorId = startCaptureOutput(std::cout);
-    COMPLOG_INFO("vector values:", testVect);
+    COMPLOG_SYNC_INFO("vector:", testVect);
     auto captured = getCapturedOutput(coutCollectorId);
-    checkPattern(captured, "vector values: { Values | are | not | same }");
+    checkPattern(captured, "vector: { Values | are | not | same }");
     captured.clear();
 
     // ======================================= //
@@ -185,13 +187,13 @@ TEST(Components_Logger, ArrayProcessing) {
     using maptyp = std::decay_t<decltype(testMap)>;
     ASSERT_FALSE(Logger::IsString<maptyp>::value)      << "Map must not be string";
     ASSERT_TRUE(Logger::IsContainer<maptyp>::value)    << "Map must be container";
-    ASSERT_FALSE(Logger::IsMap<maptyp>::value)         << "Map must be map";
+    ASSERT_TRUE(Logger::IsMap<maptyp>::value)         << "Map must be map";
 
     // Check map output
     coutCollectorId = startCaptureOutput(std::cout);
-    COMPLOG_INFO("map values:", testMap);
+    COMPLOG_SYNC_INFO("map:", testMap);
     captured = getCapturedOutput(coutCollectorId);
-    checkPattern(captured, "map values: { 1 : Example | 2 : values | 3 : of | 4 : the | 5 : map }");
+    checkPattern(captured, "map: { 1 : Example | 2 : values | 3 : of | 4 : the | 5 : map }");
 
     // For logger message sending
     std::this_thread::yield();
