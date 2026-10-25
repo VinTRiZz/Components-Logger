@@ -1,8 +1,8 @@
 #pragma once
 
-#include <type_traits>
-
 #include <string>
+#include <type_traits>
+#include <optional>
 
 #ifdef COMPONENTS_IS_ENABLED_QT
 #include <QString>
@@ -60,5 +60,16 @@ struct IsMap<
         typename T::key_type,
         typename T::value_type
         > > : public std::true_type { };
+
+
+// ======================================================= //
+
+
+template <class T>
+struct IsOptional : std::false_type {};
+
+// Specialization: it is std::optional<U>
+template <class U>
+struct IsOptional<std::optional<U>> : std::true_type {};
 
 }

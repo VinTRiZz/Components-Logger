@@ -54,6 +54,12 @@ void writeData(StreamT&& oStream, T&& oValue) {
             std::advance(pIt, 1);
         }
         writeData(oStream, "}");
+    } else if constexpr (IsOptional<BaseT>::value) {
+        if (oValue.has_value()) {
+            writeData(oStream, oValue.value());
+        } else {
+            writeData(oStream, "[NULL]");
+        }
     }
 #ifdef COMPONENTS_IS_ENABLED_QT
     else if constexpr(std::is_same_v<BaseT, std::string>) {
