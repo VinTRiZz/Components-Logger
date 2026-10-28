@@ -79,9 +79,13 @@ void writeData(StreamT&& oStream, T&& oValue) {
     }
 #else
     else if constexpr(std::is_same_v<BaseT, bool>) {
-        oStream << (oValue ? "true" : "false") << " ";
+        writeData(oStream, oValue ? "true" : "false");
     }
 #endif // Qt only
+
+    else if constexpr(std::is_same_v<BaseT, std::string_view>) {
+        writeData(oStream, std::string(oValue));
+    }
 
     else {
 

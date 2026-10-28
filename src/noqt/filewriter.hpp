@@ -24,6 +24,7 @@ public:
     */
     template<Level lt, typename... Args>
     void log(Args&&... args) {
+        if (getLogfilePath().empty()) { return; }
         lockFile();
         m_logfile.open(getLogfilePath().data(), std::ios_base::out | std::ios_base::app);
         if (!m_logfile.is_open()) {

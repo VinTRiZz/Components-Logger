@@ -45,6 +45,7 @@ public:
     */
     template<Level lt, typename... Args>
     void log(Args&&... args) {
+        if (getLogfilePath().empty()) { return; }
         lockFile();
         if (!m_logfile.isOpen()) {
             throw std::runtime_error(
