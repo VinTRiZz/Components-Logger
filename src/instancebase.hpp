@@ -36,7 +36,7 @@ protected:
     InstanceBase();
 
 public:
-    ~InstanceBase();
+    virtual ~InstanceBase();
 
     /**
      *  @brief createInstance   Создать независимую инстанцию логгера

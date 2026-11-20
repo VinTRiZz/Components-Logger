@@ -15,7 +15,7 @@ class FileWriterBase
 {
 public:
     FileWriterBase();
-    ~FileWriterBase();
+    virtual ~FileWriterBase();
 
     virtual void setLogfile(const std::string& filePath);
     virtual void setLogfile(const std::string_view& filePath);
